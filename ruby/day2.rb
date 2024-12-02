@@ -7,12 +7,10 @@ reports = P.int.delimited(' ').each_line.parse_all(input)
 def safe?(report)
   diffs = report.each_cons(2).map {|a, b| a - b}
   return false unless diffs.all?(&:positive?) || diffs.all?(&:negative?)
-  diffs.all? {|i| (1..3).include?(i.abs)}
+  diffs.all? {|i| i.abs.between?(1, 3)}
 end
 
-pt1 = reports.count do |report|
-  safe?(report)
-end
+pt1 = reports.count {|report| safe?(report)}
 puts "Part 1: #{pt1}"
 
 pt2 = reports.count do |report|
