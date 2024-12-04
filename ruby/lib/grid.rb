@@ -63,6 +63,21 @@ class Grid
     Grid.new(@rows.transpose)
   end
 
+  def subsection(row_range, col_range)
+    Grid.new(@rows[row_range].map {|col| col[col_range]})
+  end
+
+  def each_tile(tile_rows, tile_cols, &blk)
+    return to_enum(:each_tile, tile_rows, tile_cols) if blk.nil?
+    (0 .. row_count - tile_rows).each do |row_index|
+      (0 .. column_count - tile_cols).each do |col_index|
+        row_range = row_index ... row_index + tile_rows
+        col_range = col_index ... col_index + tile_cols
+        blk.call(subsection(row_range, col_range))
+      end
+    end
+  end
+
   def each_with_index(&blk)
     return to_enum(:each_with_index) if blk.nil?
     @rows.each_with_index do |row, row_index|

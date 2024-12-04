@@ -1,62 +1,31 @@
 require_relative './lib/aoc'
 require_relative './lib/grid'
 
+def equal_either_dir(a, b) = a == b || a == b.reverse
+
 input = AOC.get_input(4)
-
-deltas = [
-  [0, 1],
-  [1, 0],
-  [0, -1],
-  [-1, 0],
-  [1, 1],
-  [1, -1],
-  [-1, 1],
-  [-1, -1]
-]
-
 grid = Grid.chars(input)
-total_xmas = 0
-(0 .. grid.row_count).each do |row|
-  (0 .. grid.column_count).each do |col|
-    deltas.each do |dr, dc|
-      positions = (0..3).map do |d|
-        [row + d * dr, col + d * dc]
-      end
 
-      if !positions.all? {|pos| grid.valid_pos?(pos)}
-        next
-      end
-
-      at_positions = positions.map {|pos| grid[pos]}.join
-
-      if at_positions == 'XMAS'
-        total_xmas += 1
-      end
+dirs = [[0, 1], [1, 0], [1, 1], [1, -1]]
+pt1 = grid.each_with_index.sum do |_, row, col|
+  dirs.count do |dr, dc|
+    positions = 4.times.map do |steps|
+      [row + steps * dr, col + steps * dc]
     end
+
+    next false unless grid.valid_pos?(positions.last)
+
+    at_positions = positions.map {grid[_1]}.join
+    equal_either_dir(at_positions, 'XMAS')
   end
 end
-
-pt1 = total_xmas
 puts "Part 1: #{pt1}"
 
-pt2 = 0
-(0 .. grid.row_count - 3).each do |tl_row|
-  (0 .. grid.column_count - 3).each do |tl_col|
-    subsection = Grid.new(grid.rows[tl_row ... tl_row + 3].map {|row| row[tl_col ... tl_col + 3]})
-    next if subsection[1, 1] != 'A'
-    # diagonals
-    d1 = [subsection[0, 0], subsection[2, 2]].sort.join
-    d2 = [subsection[2, 0], subsection[0, 2]].sort.join
-    if d1 == 'MS' && d2 == 'MS'
-      pt2 += 1
-    end
-    # crosses
-    c1 = [subsection[1, 0], subsection[1, 2]].sort.join
-    c2 = [subsection[0, 1], subsection[2, 1]].sort.join
-    if c1 == 'SM' && c2 == 'MS'
-      pt2 += 1
-    end
-  end
+pt2 = grid.each_tile(3, 3).count do |tile|
+  next false if tile[1, 1] != 'A'
+  # check diagonals
+  d1 = tile[0, 0] + tile[2, 2]
+  d2 = tile[2, 0] + tile[0, 2]
+  equal_either_dir(d1, 'MS') && equal_either_dir(d2, 'MS')
 end
-
 puts "Part 2: #{pt2}"
