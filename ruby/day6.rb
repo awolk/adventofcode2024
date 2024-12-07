@@ -2,7 +2,6 @@ require_relative './lib/aoc'
 require_relative './lib/grid'
 
 input = AOC.get_input(6)
-# input = AOC.get_example_input(6)
 
 ROTATE = {
   [-1, 0] => [0, 1],
@@ -11,33 +10,37 @@ ROTATE = {
   [0, -1] => [-1, 0]
 }
 
-def advance((gr, gc), (dr, dc))
-  [gr + dr, gc + dc]
+Guard = Data.define(:r, :c, :dr, :dc) do
+  def advance = Guard.new(r + dr, c + dc, dr, dc)
+  def rotate = Guard.new(r, c, *ROTATE[[dr, dc]])
+  
+  def pos = [r, c]
+  
+  def self.starting_at(pos)
+    Guard.new(pos[0], pos[1], -1, 0)
+  end
 end
 
 def simulate(grid, extra_obstacle)
-  guard_pos = grid.index('^')
-  guard_dir = [-1, 0]
+  guard = Guard.starting_at(grid.index('^'))
 
   all_guard_positions = Set[]
   all_states = Set[]
 
   loop do
-    state = [guard_pos, guard_dir]
-    if all_states.include?(state)
+    if all_states.include?(guard)
       return [all_guard_positions, true]
     end
-    all_states << state
+    all_states << guard
+    all_guard_positions << guard.pos
 
-    all_guard_positions << guard_pos
+    advanced = guard.advance
+    break if !grid.valid_pos?(advanced.pos)
 
-    new_guard_pos = advance(guard_pos, guard_dir)
-    break if !grid.valid_pos?(new_guard_pos)
-
-    if grid[new_guard_pos] == '#' || new_guard_pos == extra_obstacle
-      guard_dir = ROTATE[guard_dir]
+    if grid[advanced.pos] == '#' || advanced.pos == extra_obstacle
+      guard = guard.rotate
     else
-      guard_pos = new_guard_pos
+      guard = advanced
     end
   end
 
