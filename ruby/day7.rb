@@ -1,20 +1,31 @@
 require_relative './lib/aoc'
-require_relative './lib/grid'
 require_relative './lib/parser'
 
 def can_equal?(total, inputs, allow_concat:)
   if inputs.size == 1
-    total == inputs.first
-  else
-    return true if can_equal?(total - inputs.last, inputs[...-1], allow_concat:)
-    return true if ((total % inputs.last == 0) && can_equal?(total / inputs.last, inputs[...-1], allow_concat:))
-
-    return allow_concat &&  ((total - inputs.last) % (10 ** inputs.last.to_s.length) == 0) && can_equal?((total - inputs.last) / (10 ** inputs.last.to_s.length), inputs[...-1], allow_concat:)
+    return total == inputs.first
   end
+
+  last = inputs.last
+  others = inputs[...-1]
+
+  # last operator is addition
+  return true if can_equal?(total - last, others, allow_concat:)
+  
+  # last operator is multiplication
+  return true if ((total % last == 0) && can_equal?(total / last, others, allow_concat:))
+
+  if allow_concat
+    # concat is multiplication then addition, undo them in reverse
+    multiplier = 10 ** (Math.log10(last).floor + 1)
+    after_addition = total - last
+    return (after_addition % multiplier == 0) && can_equal?(after_addition / multiplier, others, allow_concat:)
+  end
+
+  false
 end
 
 input = AOC.get_input(7)
-# input = AOC.get_example_input(7)
 
 equation_parser = P.seq(P.int, ': ', P.int.delimited(' ')).each_line
 equations = equation_parser.parse_all(input)
