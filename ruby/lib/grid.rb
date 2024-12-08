@@ -82,33 +82,35 @@ class Grid
     return to_enum(:each_with_index) if blk.nil?
     @rows.each_with_index do |row, row_index|
       row.each_with_index do |val, col_index|
-        blk.call(val, row_index, col_index)
+        blk.call(val, Vec2.new(row_index, col_index))
       end
     end
   end
 
   def index(target)
-    each_with_index do |val, r, c|
-      return [r, c] if val == target
+    each_with_index do |val, pos|
+      return pos if val == target
     end
     nil
   end
 
   def all_indexes(target)
-    each_with_index.filter_map do |val, r, c|
-      [r, c] if val == target
+    each_with_index.filter_map do |val, pos|
+      pos if val == target
     end
   end
 
   def neighbor_positions(r, c=nil, diagonals: true)
     r, c = r if r.is_a?(Array)
-    if diagonals
-      [r-1, r, r+1].product([c-1, c, c+1])
-    else
-      [[r, c-1], [r, c+1], [r-1, c], [r+1, c]]
-    end.select do |pos|
-      pos != [r, c] && valid_pos?(pos)
-    end
+    positions =
+      if diagonals
+        [r-1, r, r+1].product([c-1, c, c+1])
+      else
+        [[r, c-1], [r, c+1], [r-1, c], [r+1, c]]
+      end.select do |pos|
+        pos != [r, c] && valid_pos?(pos)
+      end
+    positions.map {|(r, c)| Vec2.new(r, c)}
   end
 
   def neighbors_with_positions(r, c=nil, diagonals: true)
@@ -125,5 +127,34 @@ class Grid
 
   def row_strings
     @rows.map(&:join)
+  end
+
+  class Vec2 < Array
+    def initialize(r, c)
+      super([r, c])
+    end
+
+    def r = first
+    def c = last
+
+    def +(other)
+      raise 'unexpected operand' unless other.is_a?(Array) && other.length == 2
+      Vec2.new(r + other[0], c + other[1])
+    end
+
+    def -(other)
+      raise 'unexpected operand' unless other.is_a?(Array) && other.length == 2
+      Vec2.new(r - other[0], c - other[1])
+    end
+
+    def *(other)
+      raise 'unexpected operand' unless other.is_a?(Numeric)
+      Vec2.new(r * other, c * other)
+    end
+
+    def /(other)
+      raise 'unexpected operand' unless other.is_a?(Numeric)
+      Vec2.new(r / other, c / other)
+    end
   end
 end

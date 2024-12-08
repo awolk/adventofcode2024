@@ -7,7 +7,7 @@ input = AOC.get_input(4)
 grid = Grid.chars(input)
 
 dirs = [[0, 1], [1, 0], [1, 1], [1, -1]]
-pt1 = grid.each_with_index.sum do |_, row, col|
+pt1 = grid.each_with_index.sum do |_, (row, col)|
   dirs.count do |dr, dc|
     positions = 4.times.map do |steps|
       [row + steps * dr, col + steps * dc]
