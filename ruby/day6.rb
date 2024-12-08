@@ -10,29 +10,21 @@ ROTATE = {
   [0, -1] => [-1, 0]
 }
 
-Guard = Data.define(:r, :c, :dr, :dc) do
-  def advance = Guard.new(r + dr, c + dc, dr, dc)
-  def rotate = Guard.new(r, c, *ROTATE[[dr, dc]])
-  
-  def pos = [r, c]
-  
-  def self.starting_at(pos)
-    Guard.new(pos[0], pos[1], -1, 0)
-  end
+Guard = Data.define(:pos, :dir) do
+  def advance = Guard.new(pos + dir, dir)
+  def rotate = Guard.new(pos, ROTATE[dir])
 end
 
+# returns all guard starts, and whether the guard looped
 def simulate(grid, extra_obstacle)
-  guard = Guard.starting_at(grid.index('^'))
-
-  all_guard_positions = Set[]
+  guard = Guard.new(grid.index('^'), [-1, 0])
   all_states = Set[]
 
   loop do
     if all_states.include?(guard)
-      return [all_guard_positions, true]
+      return [all_states, true]
     end
     all_states << guard
-    all_guard_positions << guard.pos
 
     advanced = guard.advance
     break if !grid.valid_pos?(advanced.pos)
@@ -44,13 +36,14 @@ def simulate(grid, extra_obstacle)
     end
   end
 
-  [all_guard_positions, false]
+  [all_states, false]
 end
 
 grid = Grid.chars(input)
 
-all_original_positions, looped = simulate(grid, nil)
+all_original_states, looped = simulate(grid, nil)
 raise if looped
+all_original_positions = all_original_states.map(&:pos).to_set
 pt1 = all_original_positions.size
 puts "Part 1: #{pt1}"
 
