@@ -1,25 +1,29 @@
 require_relative './lib/aoc'
-require_relative './lib/grid'
-require_relative './lib/parser'
 
-input = AOC.get_input(11)
-# input = AOC.get_example_input(11)
-stones = input.split.map(&:to_i)
-
-25.times do
-  stones = stones.flat_map do |stone|
+def next_counts(counts)
+  new_counts = Hash.new {0}
+  counts.each do |stone, count|
     if stone == 0
-      [1]
-    elsif stone.to_s.length.even?
-      midway = stone.to_s.length / 2
-      [stone.to_s[...midway].to_i, stone.to_s[midway..].to_i]
+      new_counts[1] += count
+    elsif (stone_s = stone.to_s).length.even?
+      midway = stone_s.length / 2
+      new_counts[stone_s[...midway].to_i] += count
+      new_counts[stone_s[midway...].to_i] += count
     else
-      [stone * 2024]
+      new_counts[stone * 2024] += count
     end
   end
+  new_counts
 end
-pt1 = stones.length
+
+input = AOC.get_input(11)
+stones = input.split.map(&:to_i)
+counts = stones.tally
+
+25.times {counts = next_counts(counts)}
+pt1 = counts.values.sum
 puts "Part 1: #{pt1}"
 
-pt2 = 0
+50.times {counts = next_counts(counts)}
+pt2 = counts.values.sum
 puts "Part 2: #{pt2}"
