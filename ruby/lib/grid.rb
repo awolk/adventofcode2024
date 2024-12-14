@@ -136,6 +136,8 @@ class Grid
 
     def r = first
     def c = last
+    def x = first
+    def y = last
 
     def +(other)
       raise 'unexpected operand' unless other.is_a?(Array) && other.length == 2
@@ -155,6 +157,10 @@ class Grid
     def /(other)
       raise 'unexpected operand' unless other.is_a?(Numeric)
       Vec2.new(r / other, c / other)
+    end
+
+    def magnitude
+      Math.sqrt(r ** 2 + c ** 2)
     end
   end
 end
