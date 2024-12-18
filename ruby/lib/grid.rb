@@ -129,6 +129,10 @@ class Grid
     @rows.map(&:join)
   end
 
+  def display
+    row_strings.each {|row| puts row}
+  end
+
   class Vec2 < Array
     def initialize(r, c)
       super([r, c])
@@ -140,27 +144,32 @@ class Grid
     def y = last
 
     def +(other)
-      raise 'unexpected operand' unless other.is_a?(Array) && other.length == 2
+      raise "unexpected operand #{other.inspect}" unless other.is_a?(Array) && other.length == 2
       Vec2.new(r + other[0], c + other[1])
     end
 
     def -(other)
-      raise 'unexpected operand' unless other.is_a?(Array) && other.length == 2
+      raise "unexpected operand #{other.inspect}" unless other.is_a?(Array) && other.length == 2
       Vec2.new(r - other[0], c - other[1])
     end
 
     def *(other)
-      raise 'unexpected operand' unless other.is_a?(Numeric)
+      raise "unexpected operand #{other.inspect}" unless other.is_a?(Numeric)
       Vec2.new(r * other, c * other)
     end
 
     def /(other)
-      raise 'unexpected operand' unless other.is_a?(Numeric)
+      raise "unexpected operand #{other.inspect}" unless other.is_a?(Numeric)
       Vec2.new(r / other, c / other)
     end
 
     def magnitude
       Math.sqrt(r ** 2 + c ** 2)
     end
+
+    UP = new(-1, 0)
+    DOWN = new(1, 0)
+    LEFT = new(0, -1)
+    RIGHT = new(0, 1)
   end
 end
