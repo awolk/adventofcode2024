@@ -15,6 +15,13 @@ class Grid
     new(input.split("\n").map {|line| line.chars.map(&:to_i)})
   end
 
+  def self.with_dimensions(rows, cols, &blk)
+    rows = (0...rows).map do |row|
+      (0...cols).map {|col| blk.call(row, col)}
+    end
+    new(rows)
+  end
+
   attr_reader :rows, :row_count, :column_count
 
   def [](r, c=nil)
