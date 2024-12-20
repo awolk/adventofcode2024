@@ -3,7 +3,7 @@ require_relative './lib/grid'
 
 def good_cheats(path, max_dist, min_saved)
   path.each_with_index.sum do |pos, index|
-    (index + 2 ... path.length).count do |findex|
+    (index + min_saved + 2 ... path.length).count do |findex|
       fpos = path[findex]
       dist = pos.manhattan_dist(fpos)
       dist <= max_dist && findex - index - dist >= min_saved
