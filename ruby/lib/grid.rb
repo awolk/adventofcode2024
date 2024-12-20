@@ -174,6 +174,11 @@ class Grid
       Math.sqrt(r ** 2 + c ** 2)
     end
 
+    def manhattan_dist(other=nil)
+      return r.abs + c.abs if other.nil?
+      (r - other[0]).abs + (c - other[1]).abs
+    end
+
     UP = new(-1, 0)
     DOWN = new(1, 0)
     LEFT = new(0, -1)
